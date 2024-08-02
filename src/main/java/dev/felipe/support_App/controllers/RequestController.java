@@ -2,18 +2,18 @@ package dev.felipe.support_App.controllers;
 
 import dev.felipe.support_App.models.Request;
 import dev.felipe.support_App.services.RequestService;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestMapping;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/support-requests")
-@CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true")
 public class RequestController {
+
     private final RequestService service;
 
     public RequestController(RequestService service) {
@@ -28,21 +28,15 @@ public class RequestController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Request> getRequestById(@PathVariable Long id) {
-        Optional<Request> request = service.findById(id);
-        return request.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
+        return service.findById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
     public ResponseEntity<?> createRequest(@Valid @RequestBody Request newRequest) {
-        try {
-            Request createdRequest = service.store(newRequest);
-            return ResponseEntity.status(HttpStatus.CREATED).body(createdRequest);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error creating request: " + e.getMessage());
-        }
+        Request createdRequest = service.store(newRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdRequest);
     }
 
     @PutMapping("/{id}")
